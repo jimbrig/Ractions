@@ -1,0 +1,32 @@
+name: Daily R devel and R patched build
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron:  '55 6 * * *'
+
+jobs:
+
+  daily-builds:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - { r: 'devel' }
+        - { r: 'patched' }
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Docker build
+      uses: r-hub/actions/docker-build@master
+      with:
+        r_version: ${{ matrix.config.r }}
+        docker_name: rhub/r-minimal
+        github_name: r-hub/r-minimal/r-minimal
+        docker_username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        docker_password: ${{ secrets.DOCKER_HUB_TOKEN }}
+        github_username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        extra_tags: ${{ matrix.config.extra_tags }}
